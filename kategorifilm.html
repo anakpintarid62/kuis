@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuis Ajaib</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Custom Animations -->
+    <style>
+        .animate-bounce-slow {
+            animation: bounce 3s infinite;
+        }
+        .animate-spin-slow {
+            animation: spin 10s linear infinite;
+        }
+        /* Animasi Bar Waktu Mulus */
+        @keyframes shrink {
+            from { width: 100%; }
+            to { width: 0%; }
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        @keyframes zoomIn {
+            from { transform: scale(0.5); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .animate-zoom-in {
+            animation: zoomIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .animate-slide-up {
+            animation: slideUp 0.5s ease-out;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(-25%);
+                animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+            }
+            50% {
+                transform: none;
+                animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+            }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        /* Text Stroke Utility equivalent */
+        .text-stroke-blue {
+            -webkit-text-stroke: 2px #4338ca;
+        }
+        .text-stroke-brown {
+            -webkit-text-stroke: 2px #78350f;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-sky-300 via-indigo-200 to-pink-200 font-sans min-h-screen flex items-center justify-center p-4 relative overflow-hidden select-none">
+
+    <!-- Background Decorations -->
+    <div class="absolute top-10 left-10 text-white/40 animate-bounce-slow">
+        <i data-lucide="cloud" width="80" height="80"></i>
+    </div>
+    <div class="absolute top-20 right-20 text-yellow-300/60 animate-spin-slow">
+        <i data-lucide="sun" width="100" height="100"></i>
+    </div>
+    <div class="absolute bottom-10 left-20 text-pink-300/60 animate-pulse">
+        <i data-lucide="star" width="60" height="60"></i>
+    </div>
+    <div class="absolute bottom-40 right-10 text-purple-300/60 animate-bounce">
+        <i data-lucide="cloud" width="60" height="60"></i>
+    </div>
+
+    <!-- Container TV/Video Frame -->
+    <div class="relative w-full max-w-5xl aspect-video bg-indigo-950 rounded-3xl shadow-2xl overflow-hidden border-8 border-indigo-300 ring-4 ring-white/50 flex flex-col z-10">
+        
+        <!-- Top Bar -->
+        <div class="absolute top-0 left-0 right-0 p-4 flex justify-between items-start z-20 bg-gradient-to-b from-black/40 to-transparent">
+            <div class="flex items-center gap-2">
+                <span class="bg-pink-500 text-white text-xs md:text-sm font-bold px-4 py-1.5 rounded-full animate-pulse shadow-lg border-2 border-white">
+                    KUIS SERU 🌟
+                </span>
+            </div>
+        </div>
+
+        <!-- MAIN CONTENT AREA -->
+        <div id="game-container" class="flex-1 flex flex-col items-center justify-center relative z-10 p-6">
+            <!-- Dynamic Content Injected Here by JS -->
+        </div>
+
+        <!-- Bottom Control Bar (Hidden elements as requested, just structure) -->
+        <div class="bg-indigo-900/80 backdrop-blur border-t border-indigo-500/30 p-4 flex items-center gap-4 z-20 h-16">
+           <!-- Empty as per latest request (removed buttons and time) -->
+        </div>
+
+    </div>
+
+    <!-- LOGIC SCRIPT -->
+    <script>
+        // --- KONFIGURASI ---
+        const THINKING_TIME = 10;
+        const REVEAL_TIME = 5;
+
+        // --- DATA SOAL ---
+        const questions = [
+            { type: 'FILM', emoji: '🕷️ 🔴 🕸️', answer: 'SPIDER-MAN', clue: 'Superhore Marvel' },
+            { type: 'FILM', emoji: '⚡ 👓 🧙‍♂️', answer: 'HARRY POTTER', clue: 'Penyihir Inggris' },
+            { type: 'FILM', emoji: '🚢 🧊 💔', answer: 'TITANIC', clue: 'Kapal Tenggelam' },
+            { type: 'FILM', emoji: '🦁 👑 🌅', answer: 'THE LION KING', clue: 'Hakuna Matata' },
+            { type: 'FILM', emoji: '🐼 🥋 👊', answer: 'KUNG FU PANDA', clue: 'Pendekar Naga' },
+            { type: 'FILM', emoji: '🤡 🎈 😱', answer: 'IT', clue: 'Badut Seram' },
+            { type: 'FILM', emoji: '🦖 🦕 🏝️', answer: 'JURASSIC PARK', clue: 'Dinosaurus Hidup' },
+            { type: 'FILM', emoji: '🐠 🔍 🌊', answer: 'FINDING NEMO', clue: 'Ikan Hilang' },
+            { type: 'FILM', emoji: '🏠 😱 🎄', answer: 'HOME ALONE', clue: 'Tertinggal saat Liburan' },
+            { type: 'FILM', emoji: '🧞‍♂️ 🕌 🐒', answer: 'ALADDIN', clue: 'Lampu Ajaib' },
+            { type: 'HEWAN', emoji: '🐼 🎋', answer: 'PANDA', clue: 'Pemakan Bambu' },
+            { type: 'HEWAN', emoji: '🦘 🥊', answer: 'KANGURU', clue: 'Hewan Australia' },
+            { type: 'HEWAN', emoji: '🦇 🧛', answer: 'KELELAWAR', clue: 'Tidur Terbalik' },
+            { type: 'HEWAN', emoji: '🦓 🏁', answer: 'ZEBRA', clue: 'Kuda Belang' },
+            { type: 'HEWAN', emoji: '🐙 🌊', answer: 'GURITA', clue: '8 Tentakel' },
+            { type: 'NEGARA', emoji: '🗼 🥐 🍷', answer: 'PRANCIS', clue: 'Kota Cinta' },
+            { type: 'NEGARA', emoji: '🍣 👘 🌸', answer: 'JEPANG', clue: 'Negeri Sakura' },
+            { type: 'NEGARA', emoji: '🗽 🍔 🦅', answer: 'AMERIKA SERIKAT', clue: 'Paman Sam' },
+            { type: 'NEGARA', emoji: '🍝 🍕 🏟️', answer: 'ITALIA', clue: 'Colosseum' },
+            { type: 'NEGARA', emoji: 'pyramid 🐪', answer: 'MESIR', clue: 'Firaun' },
+            { type: 'LOGIKA', emoji: '🌧️ + 🌈 = ?', answer: 'MATAHARI', clue: 'Apa yang kurang?' },
+            { type: 'FILM', emoji: '👻 🚫 🔫', answer: 'GHOSTBUSTERS', clue: 'Pemburu Hantu' },
+            { type: 'FILM', emoji: '🤖 🚗 🚛', answer: 'TRANSFORMERS', clue: 'Robot Berubah' },
+            { type: 'FILM', emoji: '🍫 🎫 🏭', answer: 'CHARLIE & CHOCOLATE FACTORY', clue: 'Tiket Emas' },
+            { type: 'FILM', emoji: '🦇 👨 🌑', answer: 'BATMAN', clue: 'Ksatria Kegelapan' },
+            { type: 'FILM', emoji: '👽 🚲 🌕', answer: 'E.T.', clue: 'Alien Pulang' },
+            { type: 'FILM', emoji: '🧸 🤠 🚀', answer: 'TOY STORY', clue: 'Mainan Hidup' },
+            { type: 'FILM', emoji: '🧟‍♂️ 🚄 🇰🇷', answer: 'TRAIN TO BUSAN', clue: 'Zombie di Kereta' },
+            { type: 'FILM', emoji: '❄️ ☃️ 👑', answer: 'FROZEN', clue: 'Let It Go' },
+            { type: 'FILM', emoji: '🏴‍☠️ ⚓ 🌊', answer: 'PIRATES OF CARIBBEAN', clue: 'Kapten Jack' },
+            { type: 'FILM', emoji: '🦍 🏢 ✈️', answer: 'KING KONG', clue: 'Raksasa di Kota' },
+            { type: 'FILM', emoji: '🕶️ 💊 💻', answer: 'THE MATRIX', clue: 'Pil Merah/Biru' }
+        ];
+
+        // --- STATE ---
+        let state = {
+            phase: 'INTRO', // INTRO, THINKING, REVEAL, OUTRO
+            currentQIndex: 0,
+            timeLeft: THINKING_TIME,
+            score: 0,
+            userAnswered: false,
+            isPlaying: false,
+            timerInterval: null
+        };
+
+        const container = document.getElementById('game-container');
+
+        // --- TTS LOGIC ---
+        function speak(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                // Ensure text is clean for reading
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'id-ID';
+                utterance.rate = 1.0;
+                utterance.pitch = 1.0;
+                
+                // Try getting Indonesian voice
+                const voices = window.speechSynthesis.getVoices();
+                const indoVoice = voices.find(v => v.lang.includes('id-ID') || v.lang.includes('ind'));
+                if (indoVoice) utterance.voice = indoVoice;
+                
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        // Preload voices
+        window.speechSynthesis.getVoices();
+
+        // --- GAME ENGINE ---
+        
+        function render() {
+            let html = '';
+            const currentQ = questions[state.currentQIndex];
+
+            if (state.phase === 'INTRO') {
+                html = `
+                    <div class="text-center animate-fade-in">
+                        <h1 class="text-4xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-pink-300 to-cyan-300 mb-6 drop-shadow-md" style="text-shadow: 2px 2px 0px rgba(0,0,0,0.2)">
+                            KUIS AJAIB 🌈
+                        </h1>
+                        <p class="text-indigo-100 text-lg md:text-xl mb-8 max-w-lg mx-auto leading-relaxed font-medium bg-indigo-900/50 p-4 rounded-xl border border-indigo-700/50">
+                            Ayo tebak Film, Hewan, dan Negara!<br/>
+                            <span class="text-yellow-300 text-sm mt-2 block">🔊 Nyalakan suaranya ya!</span>
+                        </p>
+                        <button onclick="startGame()" class="group relative inline-flex items-center justify-center px-8 py-4 font-bold text-white transition-all duration-200 bg-gradient-to-r from-pink-500 to-purple-600 font-lg rounded-full hover:scale-105 hover:shadow-xl focus:outline-none ring-offset-2 focus:ring-4 ring-pink-300 border-4 border-white/20">
+                            <i data-lucide="play" class="w-8 h-8 mr-3 fill-current"></i>
+                            <span class="text-xl">MULAI MAIN</span>
+                        </button>
+                    </div>
+                `;
+            } 
+            else if (state.phase === 'THINKING') {
+                // UPDATE: Bar sekarang menggunakan CSS animation, bukan JS style updates
+                // Kita tambahkan id="timer-text" supaya bisa diupdate manual
+                html = `
+                    <div class="w-full h-full flex flex-col items-center justify-center">
+                        <div class="mb-6 transform -rotate-2">
+                            <span class="bg-yellow-400 text-indigo-900 border-b-4 border-yellow-600 px-6 py-2 rounded-xl text-lg font-bold tracking-wider shadow-lg">
+                                ${currentQ.type}
+                            </span>
+                        </div>
+
+                        <div class="text-7xl md:text-9xl mb-8 animate-bounce-slow filter drop-shadow-[0_4px_10px_rgba(0,0,0,0.5)] transform hover:scale-110 transition-transform duration-300 cursor-pointer">
+                            ${currentQ.emoji}
+                        </div>
+
+                        <div class="text-cyan-200 text-xl md:text-2xl font-bold animate-pulse mb-6 bg-indigo-900/80 px-6 py-3 rounded-2xl border-2 border-cyan-500/50 shadow-lg">
+                            💡 ${currentQ.clue}
+                        </div>
+
+                        <div class="w-full max-w-md h-6 bg-indigo-900 rounded-full overflow-hidden mb-8 border-2 border-indigo-500/50 shadow-inner p-1">
+                            <div class="h-full rounded-full bg-gradient-to-r from-green-400 via-yellow-400 to-red-400 shadow-[0_0_10px_rgba(255,255,255,0.5)]" 
+                                 style="width: 100%; animation: shrink ${THINKING_TIME}s linear forwards;">
+                            </div>
+                        </div>
+
+                        <div id="timer-text" class="text-6xl font-black text-white/20 absolute bottom-10 right-10 pointer-events-none select-none font-mono">
+                            ${state.timeLeft}
+                        </div>
+                    </div>
+                `;
+            }
+            else if (state.phase === 'REVEAL') {
+                html = `
+                    <div class="w-full h-full flex flex-col items-center justify-center">
+                        <div class="mb-6 transform -rotate-2">
+                            <span class="bg-yellow-400 text-indigo-900 border-b-4 border-yellow-600 px-6 py-2 rounded-xl text-lg font-bold tracking-wider shadow-lg">
+                                ${currentQ.type}
+                            </span>
+                        </div>
+                         <div class="text-7xl md:text-9xl mb-8 filter drop-shadow-[0_4px_10px_rgba(0,0,0,0.5)] opacity-50">
+                            ${currentQ.emoji}
+                        </div>
+
+                        <div class="absolute inset-0 flex items-center justify-center z-20">
+                            <div class="animate-zoom-in text-center bg-white/10 p-6 rounded-3xl backdrop-blur-sm border border-white/10 w-full max-w-2xl">
+                                <h2 class="text-4xl md:text-6xl font-black text-yellow-300 mb-2 tracking-wide drop-shadow-[0_4px_0_rgba(0,0,0,0.5)] stroke-black text-stroke-blue">
+                                    ${currentQ.answer}
+                                </h2>
+                                
+                                <div class="flex gap-6 justify-center animate-slide-up mt-8">
+                                    ${!state.userAnswered ? `
+                                        <button onclick="handleScore(true)" class="flex flex-col items-center gap-1 px-4 py-3 bg-green-500 hover:bg-green-400 text-white rounded-2xl transition-transform hover:scale-105 border-b-4 border-green-700 shadow-lg w-28">
+                                            <i data-lucide="check-circle" class="w-8 h-8"></i>
+                                            <span class="font-bold">Benar!</span>
+                                        </button>
+                                    ` : `
+                                        <div class="text-yellow-300 font-bold text-lg mt-2 animate-bounce">
+                                            Poin tersimpan! Siap-siap... 🚀
+                                        </div>
+                                    `}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            else if (state.phase === 'OUTRO') {
+                html = `
+                    <div class="text-center animate-fade-in bg-white/10 p-8 rounded-3xl border border-white/20 backdrop-blur-md">
+                        <div class="flex justify-center mb-6">
+                            <!-- SVG Trophy manual because Lucide might need re-init -->
+                             <svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-yellow-400 animate-bounce drop-shadow-xl"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+                        </div>
+                        <h2 class="text-4xl font-black text-white mb-2 drop-shadow-md">Hebat Sekali! 🎉</h2>
+                        <p class="text-indigo-200 text-xl mb-6">Skor Akhir Kamu:</p>
+                        <div class="text-7xl font-black text-yellow-300 mb-8 drop-shadow-[0_4px_0_rgba(180,83,9,0.8)] text-stroke-brown">
+                            ${state.score}
+                        </div>
+                        <button onclick="startGame()" class="flex items-center justify-center gap-3 px-8 py-4 bg-white text-indigo-600 font-bold text-xl rounded-full hover:bg-indigo-50 transition-transform hover:scale-105 shadow-xl border-b-4 border-indigo-200 mx-auto">
+                            <i data-lucide="rotate-ccw" class="w-7 h-7"></i>
+                            Main Lagi
+                        </button>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+            lucide.createIcons();
+        }
+
+        // --- GAME CONTROLLER ---
+
+        function startGame() {
+            state.phase = 'THINKING';
+            state.currentQIndex = 0;
+            state.score = 0;
+            state.timeLeft = THINKING_TIME;
+            state.userAnswered = false;
+            state.isPlaying = true;
+
+            speak("Halo teman-teman! Selamat datang di Kuis Ajaib. Ayo kita mulai main!");
+            
+            render();
+            startTimer();
+            playRoundVoice();
+        }
+
+        function playRoundVoice() {
+            if (!state.isPlaying) return;
+            const currentQ = questions[state.currentQIndex];
+
+            // Delay slight bit for transition
+            setTimeout(() => {
+                if (state.phase === 'THINKING') {
+                    // FIX: Convert to lowercase so TTS reads it as a word, not acronym
+                    const category = currentQ.type.toLowerCase();
+                    
+                    if (state.currentQIndex === 0) {
+                        speak(`Pertanyaan pertama. Kategori ${category}. Petunjuknya: ${currentQ.clue}`);
+                    } else {
+                        speak(`Selanjutnya. Kategori ${category}. ${currentQ.clue}`);
+                    }
+                }
+            }, 500);
+        }
+
+        function nextQuestion() {
+            if (state.currentQIndex < questions.length - 1) {
+                state.currentQIndex++;
+                state.phase = 'THINKING';
+                state.timeLeft = THINKING_TIME;
+                state.userAnswered = false;
+                render();
+                playRoundVoice();
+            } else {
+                state.phase = 'OUTRO';
+                state.isPlaying = false;
+                render();
+                speak(`Kuis selesai! Skor akhir kamu adalah ${state.score}. Luar biasa!`);
+                clearInterval(state.timerInterval);
+            }
+        }
+
+        function startTimer() {
+            if (state.timerInterval) clearInterval(state.timerInterval);
+            
+            state.timerInterval = setInterval(() => {
+                if (!state.isPlaying) return;
+
+                if (state.phase === 'THINKING') {
+                    state.timeLeft--;
+                    
+                    // UPDATE: Jangan render ulang semua (akan mereset animasi bar!)
+                    // Cukup update text angkanya saja
+                    const timerText = document.getElementById('timer-text');
+                    if (timerText) {
+                        timerText.innerText = state.timeLeft;
+                    }
+                    
+                    if (state.timeLeft <= 0) {
+                        state.phase = 'REVEAL';
+                        state.timeLeft = REVEAL_TIME;
+                        render(); // Masuk fase REVEAL baru render ulang
+                        
+                        const currentQ = questions[state.currentQIndex];
+                        // FIX: Convert to lowercase so TTS reads it as a word, not acronym
+                        const spokenAnswer = currentQ.answer.toLowerCase();
+                        speak(`Jawabannya adalah... ${spokenAnswer}`);
+                    }
+                } 
+                else if (state.phase === 'REVEAL') {
+                    state.timeLeft--;
+                    
+                    if (state.timeLeft <= 0) {
+                        nextQuestion();
+                    }
+                }
+            }, 1000);
+        }
+
+        function handleScore(isCorrect) {
+            if (state.userAnswered) return;
+            state.userAnswered = true;
+            
+            if (isCorrect) {
+                state.score += 10;
+                speak("Yey! Kamu Benar!");
+            }
+            render();
+        }
+
+        // Init
+        render();
+
+    </script>
+</body>
+</html>
