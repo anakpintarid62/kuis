@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuis Tebak Buah-Buahan</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* Custom Animations */
+        @keyframes gentle-wobble {
+            0%, 100% { transform: rotate(-3deg); }
+            50% { transform: rotate(3deg); }
+        }
+        .animate-gentle-wobble {
+            animation: gentle-wobble 3s ease-in-out infinite;
+        }
+        
+        /* Fade In Animation */
+        .fade-in-zoom {
+            animation: fadeInZoom 0.5s ease-out forwards;
+        }
+        @keyframes fadeInZoom {
+            from { opacity: 0; transform: scale(0.5); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* Utility for Aspect Ratio */
+        .aspect-video {
+            aspect-ratio: 16 / 9;
+        }
+    </style>
+</head>
+<body class="bg-gray-800 font-sans flex flex-col items-center justify-center min-h-screen p-4">
+
+    <!-- Main Container 16:9 -->
+    <div id="app-container" class="relative w-full max-w-4xl aspect-video bg-gray-900 rounded-xl shadow-2xl overflow-hidden border-4 border-white/50 transition-colors duration-1000">
+
+        <!-- LAYER 1: DECORATION (Background Pattern) -->
+        <div class="absolute inset-0 opacity-20 pointer-events-none">
+            <div class="absolute top-0 left-0 w-full h-full" style="background-image: url('https://www.transparenttextures.com/patterns/food.png');"></div>
+        </div>
+
+        <!-- LAYER 2: INTRO SCREEN -->
+        <div id="intro-screen" class="absolute inset-0 z-50 flex flex-col items-center justify-center bg-gradient-to-br from-green-500 to-lime-700 text-white">
+            <div class="z-10 text-center">
+                <h1 class="text-6xl md:text-7xl font-black mb-2 drop-shadow-md tracking-tight">TEBAK BUAH</h1>
+                <p class="text-2xl mb-10 font-light opacity-90">Buah Asli & Umum di Indonesia</p>
+                
+                <div class="flex gap-6 justify-center mb-10 opacity-90">
+                    <i class="fa-solid fa-apple-whole text-5xl animate-bounce" style="animation-delay: 0s"></i>
+                    <i class="fa-solid fa-lemon text-5xl animate-bounce" style="animation-delay: 0.2s"></i>
+                    <i class="fa-solid fa-carrot text-5xl animate-bounce" style="animation-delay: 0.4s"></i>
+                </div>
+
+                <button onclick="startGame()" class="px-12 py-4 bg-yellow-400 text-yellow-900 font-bold rounded-full text-2xl hover:scale-110 transition-transform shadow-xl border-b-4 border-yellow-600 active:border-b-0 active:translate-y-1 cursor-pointer">
+                    MULAI KUIS
+                </button>
+            </div>
+        </div>
+
+        <!-- LAYER 3: GAMEPLAY SCREEN -->
+        <div id="game-screen" class="absolute inset-0 z-40 hidden flex flex-col items-center justify-center">
+            
+            <!-- Image Area -->
+            <div class="relative z-10 mb-6">
+                <div class="w-80 h-64 bg-white rounded-xl shadow-2xl flex items-center justify-center animate-gentle-wobble transform transition-all duration-500 border-4 border-white overflow-hidden relative">
+                    <!-- Image Source akan diinject via JS menggunakan Search API trick -->
+                    <img id="quiz-image" src="" alt="Tebak Buah" class="w-full h-full object-cover shadow-inner" onerror="this.src='https://placehold.co/400x300?text=Image+Not+Found'">
+                    <div class="absolute inset-0 bg-gradient-to-tr from-black/10 to-transparent pointer-events-none"></div>
+                </div>
+            </div>
+
+            <!-- Timer & Answer Area -->
+            <div class="h-28 w-full flex flex-col items-center justify-center relative z-20">
+                <div id="timer-container" class="w-2/3 max-w-xl bg-gray-800/50 backdrop-blur-sm h-12 rounded-full shadow-inner border-2 border-white/30 relative mt-4">
+                    <div id="timer-bar" class="h-full bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full relative w-full">
+                        <div class="absolute right-0 top-1/2 transform translate-x-1/2 -translate-y-1/2 bg-white w-16 h-16 rounded-full border-4 border-orange-500 flex items-center justify-center shadow-lg z-10">
+                            <i id="timer-head-icon" class="fa-solid fa-utensils text-2xl text-green-600"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="answer-container" class="hidden fade-in-zoom w-full px-4">
+                    <h2 id="answer-text" class="text-4xl md:text-6xl font-black tracking-wider uppercase text-center text-white drop-shadow-[0_4px_4px_rgba(0,0,0,0.8)]" style="text-shadow: 2px 2px 0 #000;">
+                        JAWABAN
+                    </h2>
+                </div>
+            </div>
+        </div>
+
+        <!-- LAYER 4: FINISHED SCREEN -->
+        <div id="finished-screen" class="absolute inset-0 z-50 hidden flex flex-col items-center justify-center bg-gradient-to-br from-purple-600 to-indigo-800 text-white">
+            <h1 class="text-6xl font-black mb-6 animate-bounce">SEHAT & SEGAR!</h1>
+            <p id="final-score-text" class="text-2xl mb-8">Anda tahu semua jenis buah.</p>
+            <button onclick="startGame()" class="px-8 py-3 bg-white text-purple-800 font-bold rounded-full text-xl hover:scale-105 transition-transform shadow-lg cursor-pointer">
+                Main Lagi
+            </button>
+        </div>
+
+    </div>
+    <p class="text-gray-400 mt-4 text-sm">HTML Version: Database Buah Indonesia & Umum</p>
+
+    <script>
+        // --- DATA BUAH (Sesuai Permintaan) ---
+        // bgColor diset dinamis via JS nanti atau default
+        const fruitList = [
+            "Pisang", "Mangga", "Durian", "Rambutan", "Manggis", "Salak", "Pepaya", "Semangka", "Melon", "Duku",
+            "Langsat", "Sirsak", "Srikaya", "Jambu", "Kelapa", "Nangka", "Cempedak", "Sukun", "Kedondong", "Belimbing",
+            "Tomat", "Terong", "Labu", "Salak", "Apel", "Pir", "Anggur", "Stroberi", "Blueberry", "Ceri",
+            "Kiwi", "Delima", "Zaitun", "Tin", "Lemon", "Blewah", "Sawo", "Gandaria", "Jamblang", "Kersen",
+            "Bidara", "Kawista", "Cermai", "Kesemek", "Kapul", "Namnam", "Menteng", "Lobi-lobi", "Boni", "Gowok",
+            "Rukam", "Mundu", "Pare", "Rambutan", "Manggis", "Durian", "Markisa", "Kelengkeng", "Persik", "Plum",
+            "Aprikot", "Lime", "Grapefruit", "Pomelo", "Nektarin", "Quince", "Loquat", "Feijoa", "Ackee", "Longan",
+            "Pineberry", "Currant", "Yuzu", "Sudachi", "Calamansi", "Kumquat", "Anggur M", "Jeruk", "Melon", "Semangka",
+            "Buah Naga", "Kurma", "Breadfruit"
+        ];
+
+        // Konversi ke format objek
+        const quizData = fruitList.map(name => ({
+            name: name,
+            // Kita gunakan warna background random yang cerah untuk buah
+            bgColor: getRandomFruitColor()
+        }));
+
+        function getRandomFruitColor() {
+            const colors = [
+                'bg-red-600', 'bg-orange-500', 'bg-yellow-500', 'bg-green-600', 
+                'bg-green-700', 'bg-lime-600', 'bg-amber-500', 'bg-emerald-600'
+            ];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+
+        // --- STATE VARIABLES ---
+        let currentLevel = 0;
+        let timerTimeout;
+        let revealTimeout;
+        let nextLevelTimeout;
+
+        // --- DOM ELEMENTS ---
+        const appContainer = document.getElementById('app-container');
+        const introScreen = document.getElementById('intro-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const finishedScreen = document.getElementById('finished-screen');
+        
+        const quizImage = document.getElementById('quiz-image');
+        const timerContainer = document.getElementById('timer-container');
+        const timerBar = document.getElementById('timer-bar');
+        const answerContainer = document.getElementById('answer-container');
+        const answerText = document.getElementById('answer-text');
+        const finalScoreText = document.getElementById('final-score-text');
+
+        // --- FUNCTIONS ---
+
+        function startGame() {
+            currentLevel = 0;
+            clearAllTimeouts();
+            introScreen.classList.add('hidden');
+            finishedScreen.classList.add('hidden');
+            gameScreen.classList.remove('hidden');
+            gameScreen.classList.add('flex');
+            loadLevel();
+        }
+
+        function loadLevel() {
+            if (currentLevel >= quizData.length) {
+                endGame();
+                return;
+            }
+
+            const data = quizData[currentLevel];
+
+            // 1. Reset UI Elements
+            answerContainer.classList.add('hidden');
+            timerContainer.classList.remove('hidden');
+            
+            // 2. Set Colors & Image
+            appContainer.className = `relative w-full max-w-4xl aspect-video rounded-xl shadow-2xl overflow-hidden border-4 border-white/50 transition-colors duration-1000 flex flex-col items-center justify-center ${data.bgColor}`;
+
+            // --- IMAGE GENERATION TRICK ---
+            // Menggunakan Bing Thumbnail API public untuk mencari gambar buah secara real-time berdasarkan nama.
+            // Ini sangat efektif untuk buah spesifik seperti "Namnam" atau "Gowok".
+            // Kami menambahkan kata "fruit" atau "buah" agar hasil lebih akurat.
+            const query = encodeURIComponent(data.name + " buah fruit");
+            quizImage.src = `https://tse2.mm.bing.net/th?q=${query}&w=500&h=400&c=7&rs=1&p=0`;
+
+            // 3. Reset Timer Bar
+            timerBar.style.transition = 'none';
+            timerBar.style.width = '100%';
+            void timerBar.offsetWidth; 
+
+            // 4. Start Animation
+            setTimeout(() => {
+                timerBar.style.transition = 'width 3000ms linear';
+                timerBar.style.width = '0%';
+            }, 50);
+
+            // 5. Schedule Reveal
+            timerTimeout = setTimeout(revealAnswer, 3050); 
+        }
+
+        function revealAnswer() {
+            const data = quizData[currentLevel];
+            timerContainer.classList.add('hidden');
+            answerContainer.classList.remove('hidden');
+            answerText.innerText = data.name;
+            speak(data.name);
+
+            nextLevelTimeout = setTimeout(() => {
+                currentLevel++;
+                loadLevel();
+            }, 2500);
+        }
+
+        function endGame() {
+            gameScreen.classList.add('hidden');
+            gameScreen.classList.remove('flex');
+            finishedScreen.classList.remove('hidden');
+            finishedScreen.classList.add('flex');
+            finalScoreText.innerText = `Total ${quizData.length} Buah Tertebak!`;
+        }
+
+        function clearAllTimeouts() {
+            clearTimeout(timerTimeout);
+            clearTimeout(revealTimeout);
+            clearTimeout(nextLevelTimeout);
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+            }
+        }
+
+        function speak(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel(); 
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'id-ID'; 
+                utterance.rate = 1;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+    </script>
+</body>
+</html>
