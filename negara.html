@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuis Tebak Bendera Negara</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome (Untuk dekorasi intro) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* Custom Animations */
+        @keyframes gentle-wobble {
+            0%, 100% { transform: rotate(-3deg); }
+            50% { transform: rotate(3deg); }
+        }
+        .animate-gentle-wobble {
+            animation: gentle-wobble 3s ease-in-out infinite;
+        }
+        
+        /* Fade In Animation */
+        .fade-in-zoom {
+            animation: fadeInZoom 0.5s ease-out forwards;
+        }
+        @keyframes fadeInZoom {
+            from { opacity: 0; transform: scale(0.5); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* Utility for Aspect Ratio */
+        .aspect-video {
+            aspect-ratio: 16 / 9;
+        }
+    </style>
+</head>
+<body class="bg-gray-800 font-sans flex flex-col items-center justify-center min-h-screen p-4">
+
+    <!-- Main Container 16:9 -->
+    <div id="app-container" class="relative w-full max-w-4xl aspect-video bg-gray-900 rounded-xl shadow-2xl overflow-hidden border-4 border-white/50 transition-colors duration-1000">
+
+        <!-- LAYER 1: DECORATION (Background Map Pattern) -->
+        <div class="absolute inset-0 opacity-20 pointer-events-none">
+             <!-- Pattern peta dunia sederhana -->
+            <div class="absolute top-0 left-0 w-full h-full" style="background-image: url('https://www.transparenttextures.com/patterns/earth.png');"></div>
+        </div>
+
+        <!-- LAYER 2: INTRO SCREEN -->
+        <div id="intro-screen" class="absolute inset-0 z-50 flex flex-col items-center justify-center bg-gradient-to-br from-blue-600 to-indigo-800 text-white">
+            
+            <div class="z-10 text-center">
+                <h1 class="text-7xl font-black mb-2 drop-shadow-md tracking-tight">TEBAK NEGARA</h1>
+                <p class="text-2xl mb-10 font-light opacity-90">Uji Pengetahuan Geografimu</p>
+                
+                <div class="flex gap-6 justify-center mb-10 opacity-90">
+                    <!-- Dekorasi Globe -->
+                    <i class="fa-solid fa-earth-americas text-5xl animate-bounce" style="animation-delay: 0s"></i>
+                    <i class="fa-solid fa-earth-africa text-5xl animate-bounce" style="animation-delay: 0.2s"></i>
+                    <i class="fa-solid fa-earth-asia text-5xl animate-bounce" style="animation-delay: 0.4s"></i>
+                </div>
+
+                <button onclick="startGame()" class="px-12 py-4 bg-yellow-400 text-yellow-900 font-bold rounded-full text-2xl hover:scale-110 transition-transform shadow-xl border-b-4 border-yellow-600 active:border-b-0 active:translate-y-1 cursor-pointer">
+                    MULAI PETUALANGAN
+                </button>
+            </div>
+        </div>
+
+        <!-- LAYER 3: GAMEPLAY SCREEN (Hidden by default) -->
+        <div id="game-screen" class="absolute inset-0 z-40 hidden flex flex-col items-center justify-center">
+            
+            <!-- Flag Area -->
+            <div class="relative z-10 mb-6">
+                <!-- Container Bendera -->
+                <div class="w-80 h-56 bg-white rounded-xl shadow-2xl flex items-center justify-center animate-gentle-wobble transform transition-all duration-500 border-4 border-white overflow-hidden relative">
+                    <!-- Image Bendera dari CDN -->
+                    <img id="quiz-flag" src="" alt="Bendera" class="w-full h-full object-cover shadow-inner">
+                    
+                    <!-- Overlay Efek Kilap (Glossy) -->
+                    <div class="absolute inset-0 bg-gradient-to-tr from-black/10 to-transparent pointer-events-none"></div>
+                </div>
+            </div>
+
+            <!-- Timer & Answer Area -->
+            <div class="h-28 w-full flex flex-col items-center justify-center relative z-20">
+                
+                <!-- Timer Bar Wrapper -->
+                <div id="timer-container" class="w-2/3 max-w-xl bg-gray-800/50 backdrop-blur-sm h-12 rounded-full shadow-inner border-2 border-white/30 relative mt-4">
+                    <div id="timer-bar" class="h-full bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full relative w-full">
+                        <!-- Moving Plane Icon Head -->
+                        <div class="absolute right-0 top-1/2 transform translate-x-1/2 -translate-y-1/2 bg-white w-16 h-16 rounded-full border-4 border-orange-500 flex items-center justify-center shadow-lg z-10">
+                            <i id="timer-head-icon" class="fa-solid fa-plane text-2xl text-blue-600 transform rotate-45"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Answer Text (Hidden initially) -->
+                <div id="answer-container" class="hidden fade-in-zoom w-full px-4">
+                    <h2 id="answer-text" class="text-5xl md:text-7xl font-black tracking-wider uppercase text-center text-white drop-shadow-[0_4px_4px_rgba(0,0,0,0.8)]" style="text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;">
+                        INDONESIA
+                    </h2>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- LAYER 4: FINISHED SCREEN (Hidden by default) -->
+        <div id="finished-screen" class="absolute inset-0 z-50 hidden flex flex-col items-center justify-center bg-gradient-to-br from-green-600 to-emerald-800 text-white">
+            <h1 class="text-6xl font-black mb-6 animate-bounce">KELILING DUNIA SELESAI!</h1>
+            <p id="final-score-text" class="text-2xl mb-8">Anda telah mengunjungi semua negara.</p>
+            <button onclick="startGame()" class="px-8 py-3 bg-white text-green-800 font-bold rounded-full text-xl hover:scale-105 transition-transform shadow-lg cursor-pointer">
+                Main Lagi
+            </button>
+        </div>
+
+    </div>
+
+    <p class="text-gray-400 mt-4 text-sm">HTML Version: Tebak Bendera Negara</p>
+
+    <script>
+        // --- DATA NEGARA (Nama & Kode ISO 2 digit untuk FlagCDN) ---
+        // bgColor disesuaikan dengan nuansa bendera
+        const rawQuizData = [
+            // ASIA TENGGARA
+            { name: "Indonesia", code: "id", bgColor: "bg-red-700" },
+            { name: "Malaysia", code: "my", bgColor: "bg-blue-800" },
+            { name: "Singapura", code: "sg", bgColor: "bg-red-600" },
+            { name: "Thailand", code: "th", bgColor: "bg-indigo-700" },
+            { name: "Vietnam", code: "vn", bgColor: "bg-red-600" },
+            { name: "Filipina", code: "ph", bgColor: "bg-blue-600" },
+            { name: "Brunei Darussalam", code: "bn", bgColor: "bg-yellow-500" },
+            { name: "Kamboja", code: "kh", bgColor: "bg-blue-700" },
+            { name: "Laos", code: "la", bgColor: "bg-red-700" },
+            { name: "Myanmar", code: "mm", bgColor: "bg-green-600" },
+
+            // ASIA TIMUR & SELATAN
+            { name: "Jepang", code: "jp", bgColor: "bg-red-50" }, // Putih (pakai bg terang agak merah dikit)
+            { name: "Korea Selatan", code: "kr", bgColor: "bg-white" },
+            { name: "Korea Utara", code: "kp", bgColor: "bg-blue-500" },
+            { name: "Tiongkok", code: "cn", bgColor: "bg-red-600" },
+            { name: "India", code: "in", bgColor: "bg-orange-500" },
+            { name: "Pakistan", code: "pk", bgColor: "bg-green-700" },
+            { name: "Arab Saudi", code: "sa", bgColor: "bg-green-800" },
+            { name: "Uni Emirat Arab", code: "ae", bgColor: "bg-red-600" },
+            { name: "Iran", code: "ir", bgColor: "bg-green-600" },
+            { name: "Palestina", code: "ps", bgColor: "bg-black" },
+
+            // EROPA
+            { name: "Inggris", code: "gb", bgColor: "bg-blue-900" },
+            { name: "Perancis", code: "fr", bgColor: "bg-blue-700" },
+            { name: "Jerman", code: "de", bgColor: "bg-yellow-600" },
+            { name: "Italia", code: "it", bgColor: "bg-green-600" },
+            { name: "Spanyol", code: "es", bgColor: "bg-red-600" },
+            { name: "Belanda", code: "nl", bgColor: "bg-orange-600" },
+            { name: "Rusia", code: "ru", bgColor: "bg-red-700" },
+            { name: "Ukraina", code: "ua", bgColor: "bg-yellow-400" },
+            { name: "Portugal", code: "pt", bgColor: "bg-green-700" },
+            { name: "Belgia", code: "be", bgColor: "bg-black" },
+            { name: "Swiss", code: "ch", bgColor: "bg-red-600" },
+            { name: "Swedia", code: "se", bgColor: "bg-blue-500" },
+            { name: "Turki", code: "tr", bgColor: "bg-red-600" },
+            { name: "Yunani", code: "gr", bgColor: "bg-blue-500" },
+            { name: "Kroasia", code: "hr", bgColor: "bg-red-500" },
+
+            // AMERIKA
+            { name: "Amerika Serikat", code: "us", bgColor: "bg-blue-800" },
+            { name: "Kanada", code: "ca", bgColor: "bg-red-600" },
+            { name: "Brasil", code: "br", bgColor: "bg-green-600" },
+            { name: "Argentina", code: "ar", bgColor: "bg-blue-300" },
+            { name: "Meksiko", code: "mx", bgColor: "bg-green-700" },
+            { name: "Kolombia", code: "co", bgColor: "bg-yellow-500" },
+            { name: "Chili", code: "cl", bgColor: "bg-red-600" },
+            { name: "Peru", code: "pe", bgColor: "bg-red-600" },
+            { name: "Uruguay", code: "uy", bgColor: "bg-blue-400" },
+
+            // AFRIKA
+            { name: "Mesir", code: "eg", bgColor: "bg-black" },
+            { name: "Afrika Selatan", code: "za", bgColor: "bg-green-700" },
+            { name: "Maroko", code: "ma", bgColor: "bg-red-700" },
+            { name: "Nigeria", code: "ng", bgColor: "bg-green-600" },
+            { name: "Ghana", code: "gh", bgColor: "bg-yellow-500" },
+            { name: "Kamerun", code: "cm", bgColor: "bg-green-600" },
+            { name: "Senegal", code: "sn", bgColor: "bg-green-500" },
+            
+            // OCEANIA
+            { name: "Australia", code: "au", bgColor: "bg-blue-900" },
+            { name: "Selandia Baru", code: "nz", bgColor: "bg-blue-900" },
+            { name: "Papua Nugini", code: "pg", bgColor: "bg-red-600" },
+            { name: "Fiji", code: "fj", bgColor: "bg-blue-400" }
+        ];
+        
+        // Gandakan agar permainan lebih panjang
+        const quizData = [...rawQuizData, ...rawQuizData];
+
+        // --- STATE VARIABLES ---
+        let currentLevel = 0;
+        let timerTimeout;
+        let revealTimeout;
+        let nextLevelTimeout;
+
+        // --- DOM ELEMENTS ---
+        const appContainer = document.getElementById('app-container');
+        const introScreen = document.getElementById('intro-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const finishedScreen = document.getElementById('finished-screen');
+        
+        const quizFlag = document.getElementById('quiz-flag');
+        const timerContainer = document.getElementById('timer-container');
+        const timerBar = document.getElementById('timer-bar');
+        const answerContainer = document.getElementById('answer-container');
+        const answerText = document.getElementById('answer-text');
+        const finalScoreText = document.getElementById('final-score-text');
+
+        // --- FUNCTIONS ---
+
+        function startGame() {
+            currentLevel = 0;
+            clearAllTimeouts();
+            introScreen.classList.add('hidden');
+            finishedScreen.classList.add('hidden');
+            gameScreen.classList.remove('hidden');
+            gameScreen.classList.add('flex');
+            loadLevel();
+        }
+
+        function loadLevel() {
+            if (currentLevel >= quizData.length) {
+                endGame();
+                return;
+            }
+
+            const data = quizData[currentLevel];
+
+            // 1. Reset UI Elements
+            answerContainer.classList.add('hidden');
+            timerContainer.classList.remove('hidden');
+            
+            // 2. Set Colors & Flag Image
+            // Reset background classes
+            appContainer.className = `relative w-full max-w-4xl aspect-video rounded-xl shadow-2xl overflow-hidden border-4 border-white/50 transition-colors duration-1000 flex flex-col items-center justify-center ${data.bgColor}`;
+
+            // Set Flag Image (menggunakan flagcdn)
+            // Menggunakan w640 untuk resolusi tinggi
+            quizFlag.src = `https://flagcdn.com/w640/${data.code}.png`;
+
+            // 3. Reset Timer Bar
+            timerBar.style.transition = 'none';
+            timerBar.style.width = '100%';
+            void timerBar.offsetWidth; // Force Reflow
+
+            // 4. Start Animation
+            setTimeout(() => {
+                timerBar.style.transition = 'width 3000ms linear';
+                timerBar.style.width = '0%';
+            }, 50);
+
+            // 5. Schedule Reveal
+            timerTimeout = setTimeout(revealAnswer, 3050); 
+        }
+
+        function revealAnswer() {
+            const data = quizData[currentLevel];
+            timerContainer.classList.add('hidden');
+            answerContainer.classList.remove('hidden');
+            answerText.innerText = data.name;
+            speak(data.name);
+
+            nextLevelTimeout = setTimeout(() => {
+                currentLevel++;
+                loadLevel();
+            }, 2500);
+        }
+
+        function endGame() {
+            gameScreen.classList.add('hidden');
+            gameScreen.classList.remove('flex');
+            finishedScreen.classList.remove('hidden');
+            finishedScreen.classList.add('flex');
+            finalScoreText.innerText = `Total ${quizData.length} Bendera Tertebak!`;
+        }
+
+        function clearAllTimeouts() {
+            clearTimeout(timerTimeout);
+            clearTimeout(revealTimeout);
+            clearTimeout(nextLevelTimeout);
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+            }
+        }
+
+        function speak(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel(); 
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'id-ID'; 
+                utterance.rate = 1;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+    </script>
+</body>
+</html>
