@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuis Tebak Hewan Dunia</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* Custom Animations */
+        @keyframes gentle-wobble {
+            0%, 100% { transform: rotate(-3deg); }
+            50% { transform: rotate(3deg); }
+        }
+        .animate-gentle-wobble {
+            animation: gentle-wobble 3s ease-in-out infinite;
+        }
+        
+        /* Fade In Animation */
+        .fade-in-zoom {
+            animation: fadeInZoom 0.5s ease-out forwards;
+        }
+        @keyframes fadeInZoom {
+            from { opacity: 0; transform: scale(0.5); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* Utility for Aspect Ratio */
+        .aspect-video {
+            aspect-ratio: 16 / 9;
+        }
+    </style>
+</head>
+<body class="bg-gray-800 font-sans flex flex-col items-center justify-center min-h-screen p-4">
+
+    <!-- Main Container 16:9 -->
+    <div id="app-container" class="relative w-full max-w-4xl aspect-video bg-gray-900 rounded-xl shadow-2xl overflow-hidden border-4 border-white/50 transition-colors duration-1000">
+
+        <!-- LAYER 1: DECORATION (Background Pattern) -->
+        <div class="absolute inset-0 opacity-20 pointer-events-none">
+            <!-- Pattern nature/forest -->
+            <div class="absolute top-0 left-0 w-full h-full" style="background-image: url('https://www.transparenttextures.com/patterns/wood-pattern.png');"></div>
+        </div>
+
+        <!-- LAYER 2: INTRO SCREEN -->
+        <div id="intro-screen" class="absolute inset-0 z-50 flex flex-col items-center justify-center bg-gradient-to-br from-green-700 to-emerald-900 text-white">
+            <div class="z-10 text-center">
+                <h1 class="text-6xl md:text-7xl font-black mb-2 drop-shadow-md tracking-tight">TEBAK HEWAN</h1>
+                <p class="text-2xl mb-10 font-light opacity-90">Dunia Satwa & Margasatwa</p>
+                
+                <div class="flex gap-6 justify-center mb-10 opacity-90">
+                    <i class="fa-solid fa-paw text-5xl animate-bounce" style="animation-delay: 0s"></i>
+                    <i class="fa-solid fa-hippo text-5xl animate-bounce" style="animation-delay: 0.2s"></i>
+                    <i class="fa-solid fa-crow text-5xl animate-bounce" style="animation-delay: 0.4s"></i>
+                </div>
+
+                <button onclick="startGame()" class="px-12 py-4 bg-yellow-400 text-yellow-900 font-bold rounded-full text-2xl hover:scale-110 transition-transform shadow-xl border-b-4 border-yellow-600 active:border-b-0 active:translate-y-1 cursor-pointer">
+                    MULAI PETUALANGAN
+                </button>
+            </div>
+        </div>
+
+        <!-- LAYER 3: GAMEPLAY SCREEN -->
+        <div id="game-screen" class="absolute inset-0 z-40 hidden flex flex-col items-center justify-center">
+            
+            <!-- Image Area -->
+            <div class="relative z-10 mb-6">
+                <!-- Ukuran tetap besar sesuai permintaan terakhir: Width 31.2rem (120%), Height 17.6rem (110%) -->
+                <div class="w-[31.2rem] h-[17.6rem] bg-white rounded-xl shadow-2xl flex items-center justify-center animate-gentle-wobble transform transition-all duration-500 border-4 border-white overflow-hidden relative">
+                    <!-- Image Source akan diinject via JS menggunakan Search API trick -->
+                    <img id="quiz-image" src="" alt="Tebak Hewan" class="w-full h-full object-cover shadow-inner" onerror="this.src='https://placehold.co/400x300?text=Image+Not+Found'">
+                    <div class="absolute inset-0 bg-gradient-to-tr from-black/10 to-transparent pointer-events-none"></div>
+                </div>
+            </div>
+
+            <!-- Timer & Answer Area -->
+            <div class="h-28 w-full flex flex-col items-center justify-center relative z-20">
+                <div id="timer-container" class="w-2/3 max-w-xl bg-gray-800/50 backdrop-blur-sm h-12 rounded-full shadow-inner border-2 border-white/30 relative mt-4">
+                    <div id="timer-bar" class="h-full bg-gradient-to-r from-orange-400 to-red-500 rounded-full relative w-full">
+                        <div class="absolute right-0 top-1/2 transform translate-x-1/2 -translate-y-1/2 bg-white w-16 h-16 rounded-full border-4 border-red-500 flex items-center justify-center shadow-lg z-10">
+                            <!-- Ikon Paw/Jejak Kaki -->
+                            <i id="timer-head-icon" class="fa-solid fa-paw text-2xl text-orange-600"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="answer-container" class="hidden fade-in-zoom w-full px-4">
+                    <h2 id="answer-text" class="text-4xl md:text-6xl font-black tracking-wider uppercase text-center text-white drop-shadow-[0_4px_4px_rgba(0,0,0,0.8)]" style="text-shadow: 2px 2px 0 #000;">
+                        JAWABAN
+                    </h2>
+                </div>
+            </div>
+        </div>
+
+        <!-- LAYER 4: FINISHED SCREEN -->
+        <div id="finished-screen" class="absolute inset-0 z-50 hidden flex flex-col items-center justify-center bg-gradient-to-br from-green-800 to-teal-900 text-white">
+            <h1 class="text-6xl font-black mb-6 animate-bounce">LUAR BIASA!</h1>
+            <p id="final-score-text" class="text-2xl mb-8">Anda pecinta hewan sejati.</p>
+            <button onclick="startGame()" class="px-8 py-3 bg-white text-green-900 font-bold rounded-full text-xl hover:scale-105 transition-transform shadow-lg cursor-pointer">
+                Main Lagi
+            </button>
+        </div>
+
+    </div>
+    <p class="text-gray-400 mt-4 text-sm">HTML Version: Database Hewan Lengkap</p>
+
+    <script>
+        // --- DATA HEWAN (Dilarang Merubah Susunan) ---
+        const animalList = [
+            "Singa", "Harimau", "Burung Cenderawasih", "Panda", "Zebra", "Ayam", "Gajah", "Jerapah", "Kucing", "Bebek",
+            "Angsa", "Anjing", "Sapi", "Burung Merak", "Kambing", "Burung Beo", "Kuda", "Hamster", "Kerbau", "Burung Kakatua",
+            "Burung Kenari", "Macan Tutul", "Beruang", "Rusa", "Kijang", "Badak", "Kuda Nil", "Unta", "Rubah", "Serigala",
+            "Musang", "Domba", "Luwak", "Tupai", "Kelinci", "Tikus", "Koala", "Kanguru", "Platipus", "Landak",
+            "Trenggiling", "Marmut", "Burung Parkit", "Anoa", "Banteng", "Bison", "Burung Elang", "Burung Hantu", "Burung Gagak", "Burung Cendrawasih",
+            "Keledai", "Bagal", "Alpaca", "Burung Elang", "Llama", "Guanaco", "Vicuna", "Burung Hantu", "Burung Gagak", "Burung Cendrawasih",
+            "Wildebeest", "Hyena", "Cheetah", "Jaguar", "Burung Pelatuk", "Puma", "Lynx", "Lemur", "Tarsius", "Monyet Ekor Panjang",
+            "Beruk", "Orangutan (berjalan 4 kaki)", "Simpanse", "Gorila", "Babun", "Kukang", "Bekantan", "Tapir", "Babi", "Burung Bangau",
+            "Singa Laut", "Walrus", "Berang-berang", "Otter", "Hedgehog", "Possum", "Rakun", "Buaya", "Aligator", "Komodo",
+            "Biawak", "Tokek", "Cicak", "Iguana", "Bunglon", "Kadal", "Kura-kura", "Burung Merpati", "Burung Kolibri", "Burung Camar",
+            "Penguin", "Burung Unta", "Kasuari", "Burung Flamingo", "Burung Puyuh", "Burung Perkutut", "Wombat", "Meerkat", "Mongoose", "Burung Falcon",
+            "Armadillo", "Burung Albatros", "Serval", "Burung Pelikan", "Caracal", "Burung Emu", "Ocelot", "Entok", "Gazelle", "Burung Jalak",
+            "Burung Kutilang", "Antelop", "Impala"
+        ];
+
+        // Konversi ke format objek dengan warna tema alam
+        const quizData = animalList.map(name => ({
+            name: name,
+            bgColor: getRandomAnimalColor()
+        }));
+
+        function getRandomAnimalColor() {
+            const colors = [
+                'bg-green-800', 'bg-green-700', // Forest
+                'bg-emerald-800', 'bg-teal-700', // Jungle
+                'bg-yellow-700', 'bg-yellow-800', // Savannah (Darker)
+                'bg-orange-800', 'bg-amber-700', // Earth
+                'bg-stone-700', 'bg-zinc-700', // Cave/Rock
+                'bg-cyan-800', 'bg-sky-800' // Water/Sky animals
+            ];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+
+        // --- STATE VARIABLES ---
+        let currentLevel = 0;
+        let timerTimeout;
+        let revealTimeout;
+        let nextLevelTimeout;
+
+        // --- DOM ELEMENTS ---
+        const appContainer = document.getElementById('app-container');
+        const introScreen = document.getElementById('intro-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const finishedScreen = document.getElementById('finished-screen');
+        
+        const quizImage = document.getElementById('quiz-image');
+        const timerContainer = document.getElementById('timer-container');
+        const timerBar = document.getElementById('timer-bar');
+        const answerContainer = document.getElementById('answer-container');
+        const answerText = document.getElementById('answer-text');
+        const finalScoreText = document.getElementById('final-score-text');
+
+        // --- FUNCTIONS ---
+
+        function startGame() {
+            currentLevel = 0;
+            clearAllTimeouts();
+            introScreen.classList.add('hidden');
+            finishedScreen.classList.add('hidden');
+            gameScreen.classList.remove('hidden');
+            gameScreen.classList.add('flex');
+            loadLevel();
+        }
+
+        function loadLevel() {
+            if (currentLevel >= quizData.length) {
+                endGame();
+                return;
+            }
+
+            const data = quizData[currentLevel];
+
+            // 1. Reset UI Elements
+            answerContainer.classList.add('hidden');
+            timerContainer.classList.remove('hidden');
+            
+            // 2. Set Colors & Image
+            appContainer.className = `relative w-full max-w-4xl aspect-video rounded-xl shadow-2xl overflow-hidden border-4 border-white/50 transition-colors duration-1000 flex flex-col items-center justify-center ${data.bgColor}`;
+
+            // --- IMAGE GENERATION TRICK ---
+            // Mencari gambar hewan
+            const query = encodeURIComponent(data.name + " animal hewan");
+            quizImage.src = `https://tse2.mm.bing.net/th?q=${query}&w=500&h=400&c=7&rs=1&p=0`;
+
+            // 3. Reset Timer Bar
+            timerBar.style.transition = 'none';
+            timerBar.style.width = '100%';
+            void timerBar.offsetWidth; 
+
+            // 4. Start Animation
+            setTimeout(() => {
+                timerBar.style.transition = 'width 3000ms linear';
+                timerBar.style.width = '0%';
+            }, 50);
+
+            // 5. Schedule Reveal
+            timerTimeout = setTimeout(revealAnswer, 3050); 
+        }
+
+        function revealAnswer() {
+            const data = quizData[currentLevel];
+            timerContainer.classList.add('hidden');
+            answerContainer.classList.remove('hidden');
+            // Clean up name for display (remove parenthesis hints if desired, but kept for accuracy based on prompt)
+            answerText.innerText = data.name.replace(/\(.*\)/, '').trim(); 
+            speak(data.name);
+
+            nextLevelTimeout = setTimeout(() => {
+                currentLevel++;
+                loadLevel();
+            }, 2500);
+        }
+
+        function endGame() {
+            gameScreen.classList.add('hidden');
+            gameScreen.classList.remove('flex');
+            finishedScreen.classList.remove('hidden');
+            finishedScreen.classList.add('flex');
+            finalScoreText.innerText = `Total ${quizData.length} Hewan Tertebak!`;
+        }
+
+        function clearAllTimeouts() {
+            clearTimeout(timerTimeout);
+            clearTimeout(revealTimeout);
+            clearTimeout(nextLevelTimeout);
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+            }
+        }
+
+        function speak(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel(); 
+                // Remove hints in parenthesis for cleaner speech
+                const cleanText = text.replace(/\(.*\)/, '');
+                const utterance = new SpeechSynthesisUtterance(cleanText);
+                utterance.lang = 'id-ID'; 
+                utterance.rate = 1;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+    </script>
+</body>
+</html>
