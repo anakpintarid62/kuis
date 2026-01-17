@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuis Tebak Hewan Air</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* Custom Animations */
+        @keyframes gentle-wobble {
+            0%, 100% { transform: rotate(-3deg); }
+            50% { transform: rotate(3deg); }
+        }
+        .animate-gentle-wobble {
+            animation: gentle-wobble 3s ease-in-out infinite;
+        }
+        
+        /* Fade In Animation */
+        .fade-in-zoom {
+            animation: fadeInZoom 0.5s ease-out forwards;
+        }
+        @keyframes fadeInZoom {
+            from { opacity: 0; transform: scale(0.5); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* Utility for Aspect Ratio */
+        .aspect-video {
+            aspect-ratio: 16 / 9;
+        }
+    </style>
+</head>
+<body class="bg-gray-800 font-sans flex flex-col items-center justify-center min-h-screen p-4">
+
+    <!-- Main Container 16:9 -->
+    <div id="app-container" class="relative w-full max-w-4xl aspect-video bg-gray-900 rounded-xl shadow-2xl overflow-hidden border-4 border-white/50 transition-colors duration-1000">
+
+        <!-- LAYER 1: DECORATION (Background Pattern) -->
+        <div class="absolute inset-0 opacity-20 pointer-events-none">
+            <!-- Pattern Water -->
+            <div class="absolute top-0 left-0 w-full h-full" style="background-image: url('https://www.transparenttextures.com/patterns/cubes.png');"></div>
+        </div>
+
+        <!-- LAYER 2: INTRO SCREEN -->
+        <div id="intro-screen" class="absolute inset-0 z-50 flex flex-col items-center justify-center bg-gradient-to-br from-blue-700 to-cyan-900 text-white">
+            <div class="z-10 text-center">
+                <h1 class="text-6xl md:text-7xl font-black mb-2 drop-shadow-md tracking-tight">TEBAK HEWAN AIR</h1>
+                <p class="text-2xl mb-10 font-light opacity-90">Dunia Ikan & Laut</p>
+                
+                <div class="flex gap-6 justify-center mb-10 opacity-90">
+                    <i class="fa-solid fa-fish text-5xl animate-bounce" style="animation-delay: 0s"></i>
+                    <i class="fa-solid fa-water text-5xl animate-bounce" style="animation-delay: 0.2s"></i>
+                    <i class="fa-solid fa-anchor text-5xl animate-bounce" style="animation-delay: 0.4s"></i>
+                </div>
+
+                <button onclick="startGame()" class="px-12 py-4 bg-yellow-400 text-yellow-900 font-bold rounded-full text-2xl hover:scale-110 transition-transform shadow-xl border-b-4 border-yellow-600 active:border-b-0 active:translate-y-1 cursor-pointer">
+                    MULAI MENYELAM
+                </button>
+            </div>
+        </div>
+
+        <!-- LAYER 3: GAMEPLAY SCREEN -->
+        <div id="game-screen" class="absolute inset-0 z-40 hidden flex flex-col items-center justify-center">
+            
+            <!-- Image Area -->
+            <div class="relative z-10 mb-6">
+                <!-- Ukuran tetap besar sesuai permintaan: Width 31.2rem (120%), Height 17.6rem (110%) -->
+                <div class="w-[31.2rem] h-[17.6rem] bg-white rounded-xl shadow-2xl flex items-center justify-center animate-gentle-wobble transform transition-all duration-500 border-4 border-white overflow-hidden relative">
+                    <!-- Image Source akan diinject via JS menggunakan Search API trick -->
+                    <img id="quiz-image" src="" alt="Tebak Hewan" class="w-full h-full object-cover shadow-inner" onerror="this.src='https://placehold.co/400x300?text=Image+Not+Found'">
+                    <div class="absolute inset-0 bg-gradient-to-tr from-black/10 to-transparent pointer-events-none"></div>
+                </div>
+            </div>
+
+            <!-- Timer & Answer Area -->
+            <div class="h-28 w-full flex flex-col items-center justify-center relative z-20">
+                <div id="timer-container" class="w-2/3 max-w-xl bg-gray-800/50 backdrop-blur-sm h-12 rounded-full shadow-inner border-2 border-white/30 relative mt-4">
+                    <div id="timer-bar" class="h-full bg-gradient-to-r from-blue-400 to-cyan-500 rounded-full relative w-full">
+                        <div class="absolute right-0 top-1/2 transform translate-x-1/2 -translate-y-1/2 bg-white w-16 h-16 rounded-full border-4 border-cyan-500 flex items-center justify-center shadow-lg z-10">
+                            <!-- Ikon Ikan -->
+                            <i id="timer-head-icon" class="fa-solid fa-fish text-2xl text-blue-600"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="answer-container" class="hidden fade-in-zoom w-full px-4">
+                    <h2 id="answer-text" class="text-4xl md:text-6xl font-black tracking-wider uppercase text-center text-white drop-shadow-[0_4px_4px_rgba(0,0,0,0.8)]" style="text-shadow: 2px 2px 0 #000;">
+                        JAWABAN
+                    </h2>
+                </div>
+            </div>
+        </div>
+
+        <!-- LAYER 4: FINISHED SCREEN -->
+        <div id="finished-screen" class="absolute inset-0 z-50 hidden flex flex-col items-center justify-center bg-gradient-to-br from-blue-800 to-indigo-900 text-white">
+            <h1 class="text-6xl font-black mb-6 animate-bounce">LUAR BIASA!</h1>
+            <p id="final-score-text" class="text-2xl mb-8">Anda raja lautan.</p>
+            <button onclick="startGame()" class="px-8 py-3 bg-white text-blue-900 font-bold rounded-full text-xl hover:scale-105 transition-transform shadow-lg cursor-pointer">
+                Main Lagi
+            </button>
+        </div>
+
+    </div>
+    <p class="text-gray-400 mt-4 text-sm">HTML Version: Database Hewan Air Lengkap</p>
+
+    <script>
+        // --- DATA HEWAN AIR (Dilarang Merubah Susunan) ---
+        const animalList = [
+            "Ikan Paus", "Ikan Hiu", "Ubur-ubur", "Lumba-lumba", "Ikan Cupang", "Ikan Lele", "Kepiting", "Ikan Nila", "Bulu Babi", "Ikan Mas",
+            "Udang", "Ikan Koi", "Ikan Gabus", "Cumi-cumi", "Ikan Pari", "Ikan Buntal", "Belut", "Ikan Sepat", "Ikan Gurame", "Ikan Patin",
+            "Ikan Baung", "Ikan Tuna", "Buaya", "Ikan Tongkol", "Ikan Cakalang", "Ikan Kakap", "Ikan Kerapu", "Ikan Tenggiri", "Ikan Remora", "Ikan Arwana",
+            "Lobster", "Rajungan", "Kerang", "Ikan Teri", "Ikan Sarden", "Tiram", "Gurita", "Siput", "Teripang", "Bintang Laut",
+            "Ikan Salmon", "Ikan Belanak", "Anjing Laut", "Singa Laut", "Ikan Bandeng", "Ikan Sapu-sapu", "Ikan Sidat", "Walrus", "Berang-berang", "Aligator",
+            "Penyu", "Kura-kura", "Katak", "Salamander", "Axolotl", "Ikan Layur", "Ikan Selar", "Ikan Haring", "Ikan Makarel", "Ikan Sunfish",
+            "Ikan Marlin", "Ikan Barracuda", "Ikan Swordtail", "Ikan Neon Tetra", "Beruang Kutub", "Ular Laut", "Labi-labi", "Manatee", "Beluga", "Narwhal",
+            "Orca", "Ikan Arapaima", "Ikan Piranha", "Dugong", "Plankton", "Krill", "Copepod", "Ikan Lamprey", "Ikan Hagfish",
+            "Ikan Sturgeon", "Ikan Pike", "Ikan Bass", "Ikan Trout", "Ikan Archer", "Ikan Mudskipper", "Anemon Laut", "Sotong", "Spons Laut", "Nautilus",
+            "Ikan Napoleon", "Ikan Angler", "Ikan Lionfish", "Ikan Pipefish", "Ikan Channa", "Ikan Discus", "Ikan Oscar", "Ikan Guppy", "Ikan Molly", "Ikan Platy"
+        ];
+
+        // Konversi ke format objek dengan warna tema air
+        const quizData = animalList.map(name => ({
+            name: name,
+            bgColor: getRandomAnimalColor()
+        }));
+
+        function getRandomAnimalColor() {
+            const colors = [
+                'bg-blue-800', 'bg-blue-700', // Ocean
+                'bg-cyan-800', 'bg-cyan-700', // Shallow Water
+                'bg-sky-700', 'bg-sky-800', // Surface
+                'bg-indigo-800', 'bg-indigo-900', // Deep Sea
+                'bg-teal-700', 'bg-teal-800' // Lagoon
+            ];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+
+        // --- AUDIO SYSTEM (Sound Effects) ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playTickSound() {
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            osc.type = 'triangle'; 
+            osc.frequency.setValueAtTime(1200, audioCtx.currentTime); 
+            
+            gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.1);
+        }
+
+        // --- STATE VARIABLES ---
+        let currentLevel = 0;
+        let timerTimeout;
+        let revealTimeout;
+        let nextLevelTimeout;
+        let tickInterval;
+
+        // --- DOM ELEMENTS ---
+        const appContainer = document.getElementById('app-container');
+        const introScreen = document.getElementById('intro-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const finishedScreen = document.getElementById('finished-screen');
+        
+        const quizImage = document.getElementById('quiz-image');
+        const timerContainer = document.getElementById('timer-container');
+        const timerBar = document.getElementById('timer-bar');
+        const answerContainer = document.getElementById('answer-container');
+        const answerText = document.getElementById('answer-text');
+        const finalScoreText = document.getElementById('final-score-text');
+
+        // --- FUNCTIONS ---
+
+        function startGame() {
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
+            currentLevel = 0;
+            clearAllTimeouts();
+            introScreen.classList.add('hidden');
+            finishedScreen.classList.add('hidden');
+            gameScreen.classList.remove('hidden');
+            gameScreen.classList.add('flex');
+            loadLevel();
+        }
+
+        function loadLevel() {
+            if (currentLevel >= quizData.length) {
+                endGame();
+                return;
+            }
+
+            const data = quizData[currentLevel];
+
+            // 1. Reset UI Elements
+            answerContainer.classList.add('hidden');
+            timerContainer.classList.remove('hidden');
+            
+            // 2. Set Colors & Image
+            appContainer.className = `relative w-full max-w-4xl aspect-video rounded-xl shadow-2xl overflow-hidden border-4 border-white/50 transition-colors duration-1000 flex flex-col items-center justify-center ${data.bgColor}`;
+
+            // --- IMAGE GENERATION TRICK ---
+            // Tambahkan "fish" atau "sea animal" agar pencarian lebih akurat untuk ikan
+            const query = encodeURIComponent(data.name + " fish ikan air laut");
+            quizImage.src = `https://tse2.mm.bing.net/th?q=${query}&w=500&h=400&c=7&rs=1&p=0`;
+
+            // 3. Reset Timer Bar
+            timerBar.style.transition = 'none';
+            timerBar.style.width = '100%';
+            void timerBar.offsetWidth; 
+
+            // 4. Start Animation & Sound
+            setTimeout(() => {
+                timerBar.style.transition = 'width 3000ms linear';
+                timerBar.style.width = '0%';
+                
+                playTickSound();
+                
+                let ticks = 0;
+                tickInterval = setInterval(() => {
+                    ticks++;
+                    if (ticks < 3) {
+                        playTickSound();
+                    } else {
+                        clearInterval(tickInterval);
+                    }
+                }, 1000);
+
+            }, 50);
+
+            // 5. Schedule Reveal
+            timerTimeout = setTimeout(revealAnswer, 3050); 
+        }
+
+        function revealAnswer() {
+            clearInterval(tickInterval);
+
+            const data = quizData[currentLevel];
+            timerContainer.classList.add('hidden');
+            answerContainer.classList.remove('hidden');
+            
+            answerText.innerText = data.name; 
+            speak(data.name);
+
+            nextLevelTimeout = setTimeout(() => {
+                currentLevel++;
+                loadLevel();
+            }, 2500);
+        }
+
+        function endGame() {
+            gameScreen.classList.add('hidden');
+            gameScreen.classList.remove('flex');
+            finishedScreen.classList.remove('hidden');
+            finishedScreen.classList.add('flex');
+            finalScoreText.innerText = `Total ${quizData.length} Hewan Air Tertebak!`;
+        }
+
+        function clearAllTimeouts() {
+            clearTimeout(timerTimeout);
+            clearTimeout(revealTimeout);
+            clearTimeout(nextLevelTimeout);
+            clearInterval(tickInterval);
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+            }
+        }
+
+        function speak(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel(); 
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'id-ID'; 
+                utterance.rate = 1;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+    </script>
+</body>
+</html>
