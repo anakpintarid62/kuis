@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kuis Tebak Bendera Negara</title>
+    <title>Kuis Tebak Bendera Negara (Full World)</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- FontAwesome (Untuk dekorasi intro) -->
+    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
@@ -43,19 +43,16 @@
 
         <!-- LAYER 1: DECORATION (Background Map Pattern) -->
         <div class="absolute inset-0 opacity-20 pointer-events-none">
-             <!-- Pattern peta dunia sederhana -->
             <div class="absolute top-0 left-0 w-full h-full" style="background-image: url('https://www.transparenttextures.com/patterns/earth.png');"></div>
         </div>
 
         <!-- LAYER 2: INTRO SCREEN -->
         <div id="intro-screen" class="absolute inset-0 z-50 flex flex-col items-center justify-center bg-gradient-to-br from-blue-600 to-indigo-800 text-white">
-            
             <div class="z-10 text-center">
-                <h1 class="text-7xl font-black mb-2 drop-shadow-md tracking-tight">TEBAK NEGARA</h1>
-                <p class="text-2xl mb-10 font-light opacity-90">Uji Pengetahuan Geografimu</p>
+                <h1 class="text-6xl md:text-7xl font-black mb-2 drop-shadow-md tracking-tight">DUNIA DALAM GENGGAMAN</h1>
+                <p class="text-2xl mb-10 font-light opacity-90">Tebak Bendera Seluruh Negara (195+)</p>
                 
                 <div class="flex gap-6 justify-center mb-10 opacity-90">
-                    <!-- Dekorasi Globe -->
                     <i class="fa-solid fa-earth-americas text-5xl animate-bounce" style="animation-delay: 0s"></i>
                     <i class="fa-solid fa-earth-africa text-5xl animate-bounce" style="animation-delay: 0.2s"></i>
                     <i class="fa-solid fa-earth-asia text-5xl animate-bounce" style="animation-delay: 0.4s"></i>
@@ -67,131 +64,271 @@
             </div>
         </div>
 
-        <!-- LAYER 3: GAMEPLAY SCREEN (Hidden by default) -->
+        <!-- LAYER 3: GAMEPLAY SCREEN -->
         <div id="game-screen" class="absolute inset-0 z-40 hidden flex flex-col items-center justify-center">
             
             <!-- Flag Area -->
             <div class="relative z-10 mb-6">
-                <!-- Container Bendera -->
                 <div class="w-80 h-56 bg-white rounded-xl shadow-2xl flex items-center justify-center animate-gentle-wobble transform transition-all duration-500 border-4 border-white overflow-hidden relative">
-                    <!-- Image Bendera dari CDN -->
                     <img id="quiz-flag" src="" alt="Bendera" class="w-full h-full object-cover shadow-inner">
-                    
-                    <!-- Overlay Efek Kilap (Glossy) -->
                     <div class="absolute inset-0 bg-gradient-to-tr from-black/10 to-transparent pointer-events-none"></div>
                 </div>
             </div>
 
             <!-- Timer & Answer Area -->
             <div class="h-28 w-full flex flex-col items-center justify-center relative z-20">
-                
-                <!-- Timer Bar Wrapper -->
                 <div id="timer-container" class="w-2/3 max-w-xl bg-gray-800/50 backdrop-blur-sm h-12 rounded-full shadow-inner border-2 border-white/30 relative mt-4">
                     <div id="timer-bar" class="h-full bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full relative w-full">
-                        <!-- Moving Plane Icon Head -->
                         <div class="absolute right-0 top-1/2 transform translate-x-1/2 -translate-y-1/2 bg-white w-16 h-16 rounded-full border-4 border-orange-500 flex items-center justify-center shadow-lg z-10">
                             <i id="timer-head-icon" class="fa-solid fa-plane text-2xl text-blue-600 transform rotate-45"></i>
                         </div>
                     </div>
                 </div>
 
-                <!-- Answer Text (Hidden initially) -->
                 <div id="answer-container" class="hidden fade-in-zoom w-full px-4">
-                    <h2 id="answer-text" class="text-5xl md:text-7xl font-black tracking-wider uppercase text-center text-white drop-shadow-[0_4px_4px_rgba(0,0,0,0.8)]" style="text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;">
-                        INDONESIA
+                    <h2 id="answer-text" class="text-4xl md:text-6xl font-black tracking-wider uppercase text-center text-white drop-shadow-[0_4px_4px_rgba(0,0,0,0.8)]" style="text-shadow: 2px 2px 0 #000;">
+                        JAWABAN
                     </h2>
                 </div>
-
             </div>
         </div>
 
-        <!-- LAYER 4: FINISHED SCREEN (Hidden by default) -->
+        <!-- LAYER 4: FINISHED SCREEN -->
         <div id="finished-screen" class="absolute inset-0 z-50 hidden flex flex-col items-center justify-center bg-gradient-to-br from-green-600 to-emerald-800 text-white">
-            <h1 class="text-6xl font-black mb-6 animate-bounce">KELILING DUNIA SELESAI!</h1>
-            <p id="final-score-text" class="text-2xl mb-8">Anda telah mengunjungi semua negara.</p>
+            <h1 class="text-6xl font-black mb-6 animate-bounce">MISI SELESAI!</h1>
+            <p id="final-score-text" class="text-2xl mb-8">Anda telah keliling dunia.</p>
             <button onclick="startGame()" class="px-8 py-3 bg-white text-green-800 font-bold rounded-full text-xl hover:scale-105 transition-transform shadow-lg cursor-pointer">
                 Main Lagi
             </button>
         </div>
 
     </div>
-
-    <p class="text-gray-400 mt-4 text-sm">HTML Version: Tebak Bendera Negara</p>
+    <p class="text-gray-400 mt-4 text-sm">HTML Version: 195+ Negara</p>
 
     <script>
-        // --- DATA NEGARA (Nama & Kode ISO 2 digit untuk FlagCDN) ---
-        // bgColor disesuaikan dengan nuansa bendera
+        // --- DATA LENGKAP NEGARA DI DUNIA (ISO Alpha-2 Codes) ---
         const rawQuizData = [
-            // ASIA TENGGARA
-            { name: "Indonesia", code: "id", bgColor: "bg-red-700" },
-            { name: "Malaysia", code: "my", bgColor: "bg-blue-800" },
-            { name: "Singapura", code: "sg", bgColor: "bg-red-600" },
-            { name: "Thailand", code: "th", bgColor: "bg-indigo-700" },
-            { name: "Vietnam", code: "vn", bgColor: "bg-red-600" },
-            { name: "Filipina", code: "ph", bgColor: "bg-blue-600" },
-            { name: "Brunei Darussalam", code: "bn", bgColor: "bg-yellow-500" },
-            { name: "Kamboja", code: "kh", bgColor: "bg-blue-700" },
-            { name: "Laos", code: "la", bgColor: "bg-red-700" },
-            { name: "Myanmar", code: "mm", bgColor: "bg-green-600" },
-
-            // ASIA TIMUR & SELATAN
-            { name: "Jepang", code: "jp", bgColor: "bg-red-50" }, // Putih (pakai bg terang agak merah dikit)
-            { name: "Korea Selatan", code: "kr", bgColor: "bg-white" },
-            { name: "Korea Utara", code: "kp", bgColor: "bg-blue-500" },
-            { name: "Tiongkok", code: "cn", bgColor: "bg-red-600" },
-            { name: "India", code: "in", bgColor: "bg-orange-500" },
-            { name: "Pakistan", code: "pk", bgColor: "bg-green-700" },
-            { name: "Arab Saudi", code: "sa", bgColor: "bg-green-800" },
-            { name: "Uni Emirat Arab", code: "ae", bgColor: "bg-red-600" },
-            { name: "Iran", code: "ir", bgColor: "bg-green-600" },
-            { name: "Palestina", code: "ps", bgColor: "bg-black" },
-
-            // EROPA
-            { name: "Inggris", code: "gb", bgColor: "bg-blue-900" },
-            { name: "Perancis", code: "fr", bgColor: "bg-blue-700" },
-            { name: "Jerman", code: "de", bgColor: "bg-yellow-600" },
-            { name: "Italia", code: "it", bgColor: "bg-green-600" },
-            { name: "Spanyol", code: "es", bgColor: "bg-red-600" },
-            { name: "Belanda", code: "nl", bgColor: "bg-orange-600" },
-            { name: "Rusia", code: "ru", bgColor: "bg-red-700" },
-            { name: "Ukraina", code: "ua", bgColor: "bg-yellow-400" },
-            { name: "Portugal", code: "pt", bgColor: "bg-green-700" },
-            { name: "Belgia", code: "be", bgColor: "bg-black" },
-            { name: "Swiss", code: "ch", bgColor: "bg-red-600" },
-            { name: "Swedia", code: "se", bgColor: "bg-blue-500" },
-            { name: "Turki", code: "tr", bgColor: "bg-red-600" },
-            { name: "Yunani", code: "gr", bgColor: "bg-blue-500" },
-            { name: "Kroasia", code: "hr", bgColor: "bg-red-500" },
-
-            // AMERIKA
+            // A
+            { name: "Afghanistan", code: "af", bgColor: "bg-green-800" },
+            { name: "Afrika Selatan", code: "za", bgColor: "bg-green-600" },
+            { name: "Afrika Tengah", code: "cf", bgColor: "bg-blue-600" },
+            { name: "Albania", code: "al", bgColor: "bg-red-700" },
+            { name: "Aljazair", code: "dz", bgColor: "bg-green-700" },
             { name: "Amerika Serikat", code: "us", bgColor: "bg-blue-800" },
-            { name: "Kanada", code: "ca", bgColor: "bg-red-600" },
-            { name: "Brasil", code: "br", bgColor: "bg-green-600" },
-            { name: "Argentina", code: "ar", bgColor: "bg-blue-300" },
-            { name: "Meksiko", code: "mx", bgColor: "bg-green-700" },
-            { name: "Kolombia", code: "co", bgColor: "bg-yellow-500" },
-            { name: "Chili", code: "cl", bgColor: "bg-red-600" },
-            { name: "Peru", code: "pe", bgColor: "bg-red-600" },
-            { name: "Uruguay", code: "uy", bgColor: "bg-blue-400" },
-
-            // AFRIKA
-            { name: "Mesir", code: "eg", bgColor: "bg-black" },
-            { name: "Afrika Selatan", code: "za", bgColor: "bg-green-700" },
-            { name: "Maroko", code: "ma", bgColor: "bg-red-700" },
-            { name: "Nigeria", code: "ng", bgColor: "bg-green-600" },
-            { name: "Ghana", code: "gh", bgColor: "bg-yellow-500" },
-            { name: "Kamerun", code: "cm", bgColor: "bg-green-600" },
-            { name: "Senegal", code: "sn", bgColor: "bg-green-500" },
-            
-            // OCEANIA
+            { name: "Andorra", code: "ad", bgColor: "bg-blue-600" },
+            { name: "Angola", code: "ao", bgColor: "bg-red-700" },
+            { name: "Antigua dan Barbuda", code: "ag", bgColor: "bg-red-600" },
+            { name: "Arab Saudi", code: "sa", bgColor: "bg-green-800" },
+            { name: "Argentina", code: "ar", bgColor: "bg-blue-400" },
+            { name: "Armenia", code: "am", bgColor: "bg-red-600" },
             { name: "Australia", code: "au", bgColor: "bg-blue-900" },
-            { name: "Selandia Baru", code: "nz", bgColor: "bg-blue-900" },
+            { name: "Austria", code: "at", bgColor: "bg-red-600" },
+            { name: "Azerbaijan", code: "az", bgColor: "bg-blue-500" },
+            // B
+            { name: "Bahama", code: "bs", bgColor: "bg-blue-400" },
+            { name: "Bahrain", code: "bh", bgColor: "bg-red-600" },
+            { name: "Bangladesh", code: "bd", bgColor: "bg-green-800" },
+            { name: "Barbados", code: "bb", bgColor: "bg-blue-700" },
+            { name: "Belanda", code: "nl", bgColor: "bg-red-600" },
+            { name: "Belarus", code: "by", bgColor: "bg-green-600" },
+            { name: "Belgia", code: "be", bgColor: "bg-black" },
+            { name: "Belize", code: "bz", bgColor: "bg-blue-700" },
+            { name: "Benin", code: "bj", bgColor: "bg-green-600" },
+            { name: "Bhutan", code: "bt", bgColor: "bg-orange-500" },
+            { name: "Bolivia", code: "bo", bgColor: "bg-green-600" },
+            { name: "Bosnia dan Herzegovina", code: "ba", bgColor: "bg-blue-700" },
+            { name: "Botswana", code: "bw", bgColor: "bg-blue-400" },
+            { name: "Brasil", code: "br", bgColor: "bg-green-600" },
+            { name: "Brunei Darussalam", code: "bn", bgColor: "bg-yellow-500" },
+            { name: "Bulgaria", code: "bg", bgColor: "bg-green-600" },
+            { name: "Burkina Faso", code: "bf", bgColor: "bg-red-600" },
+            { name: "Burundi", code: "bi", bgColor: "bg-red-600" },
+            // C
+            { name: "Chad", code: "td", bgColor: "bg-blue-700" },
+            { name: "Chili", code: "cl", bgColor: "bg-red-600" },
+            { name: "Ceko", code: "cz", bgColor: "bg-blue-700" },
+            // D
+            { name: "Denmark", code: "dk", bgColor: "bg-red-600" },
+            { name: "Djibouti", code: "dj", bgColor: "bg-blue-500" },
+            { name: "Dominika", code: "dm", bgColor: "bg-green-700" },
+            // E
+            { name: "Ekuador", code: "ec", bgColor: "bg-yellow-500" },
+            { name: "El Salvador", code: "sv", bgColor: "bg-blue-600" },
+            { name: "Eritrea", code: "er", bgColor: "bg-red-600" },
+            { name: "Estonia", code: "ee", bgColor: "bg-blue-800" },
+            { name: "Eswatini", code: "sz", bgColor: "bg-blue-600" },
+            { name: "Ethiopia", code: "et", bgColor: "bg-green-600" },
+            // F
+            { name: "Fiji", code: "fj", bgColor: "bg-blue-400" },
+            { name: "Filipina", code: "ph", bgColor: "bg-blue-700" },
+            { name: "Finlandia", code: "fi", bgColor: "bg-blue-600" },
+            // G
+            { name: "Gabon", code: "ga", bgColor: "bg-green-600" },
+            { name: "Gambia", code: "gm", bgColor: "bg-red-600" },
+            { name: "Georgia", code: "ge", bgColor: "bg-red-600" },
+            { name: "Ghana", code: "gh", bgColor: "bg-yellow-500" },
+            { name: "Grenada", code: "gd", bgColor: "bg-yellow-500" },
+            { name: "Guatemala", code: "gt", bgColor: "bg-blue-400" },
+            { name: "Guinea", code: "gn", bgColor: "bg-red-600" },
+            { name: "Guinea-Bissau", code: "gw", bgColor: "bg-red-600" },
+            { name: "Guinea Khatulistiwa", code: "gq", bgColor: "bg-green-600" },
+            { name: "Guyana", code: "gy", bgColor: "bg-green-600" },
+            // H
+            { name: "Haiti", code: "ht", bgColor: "bg-blue-800" },
+            { name: "Honduras", code: "hn", bgColor: "bg-blue-400" },
+            { name: "Hongaria", code: "hu", bgColor: "bg-red-700" },
+            // I
+            { name: "India", code: "in", bgColor: "bg-orange-500" },
+            { name: "Indonesia", code: "id", bgColor: "bg-red-700" },
+            { name: "Inggris (Britania Raya)", code: "gb", bgColor: "bg-blue-900" },
+            { name: "Irak", code: "iq", bgColor: "bg-red-600" },
+            { name: "Iran", code: "ir", bgColor: "bg-green-600" },
+            { name: "Irlandia", code: "ie", bgColor: "bg-green-600" },
+            { name: "Islandia", code: "is", bgColor: "bg-blue-700" },
+            { name: "Israel", code: "il", bgColor: "bg-blue-600" },
+            { name: "Italia", code: "it", bgColor: "bg-green-600" },
+            // J
+            { name: "Jamaika", code: "jm", bgColor: "bg-green-700" },
+            { name: "Jepang", code: "jp", bgColor: "bg-white" },
+            { name: "Jerman", code: "de", bgColor: "bg-yellow-600" },
+            // K
+            { name: "Kamboja", code: "kh", bgColor: "bg-blue-800" },
+            { name: "Kamerun", code: "cm", bgColor: "bg-green-600" },
+            { name: "Kanada", code: "ca", bgColor: "bg-red-600" },
+            { name: "Kazakhstan", code: "kz", bgColor: "bg-blue-400" },
+            { name: "Kenya", code: "ke", bgColor: "bg-black" },
+            { name: "Kirgizstan", code: "kg", bgColor: "bg-red-600" },
+            { name: "Kiribati", code: "ki", bgColor: "bg-red-600" },
+            { name: "Kolombia", code: "co", bgColor: "bg-yellow-500" },
+            { name: "Komoro", code: "km", bgColor: "bg-green-600" },
+            { name: "Kongo (Republik)", code: "cg", bgColor: "bg-green-600" },
+            { name: "Kongo (Demokratik)", code: "cd", bgColor: "bg-blue-600" },
+            { name: "Korea Selatan", code: "kr", bgColor: "bg-white" },
+            { name: "Korea Utara", code: "kp", bgColor: "bg-blue-700" },
+            { name: "Kosta Rika", code: "cr", bgColor: "bg-blue-800" },
+            { name: "Kroasia", code: "hr", bgColor: "bg-red-600" },
+            { name: "Kuba", code: "cu", bgColor: "bg-blue-800" },
+            { name: "Kuwait", code: "kw", bgColor: "bg-green-600" },
+            // L
+            { name: "Laos", code: "la", bgColor: "bg-red-700" },
+            { name: "Latvia", code: "lv", bgColor: "bg-red-800" },
+            { name: "Lebanon", code: "lb", bgColor: "bg-red-600" },
+            { name: "Lesotho", code: "ls", bgColor: "bg-blue-800" },
+            { name: "Liberia", code: "lr", bgColor: "bg-red-600" },
+            { name: "Libya", code: "ly", bgColor: "bg-red-600" },
+            { name: "Liechtenstein", code: "li", bgColor: "bg-blue-800" },
+            { name: "Lituania", code: "lt", bgColor: "bg-yellow-500" },
+            { name: "Luksemburg", code: "lu", bgColor: "bg-blue-400" },
+            // M
+            { name: "Madagaskar", code: "mg", bgColor: "bg-white" },
+            { name: "Maladewa", code: "mv", bgColor: "bg-red-600" },
+            { name: "Malawi", code: "mw", bgColor: "bg-black" },
+            { name: "Malaysia", code: "my", bgColor: "bg-blue-800" },
+            { name: "Mali", code: "ml", bgColor: "bg-green-600" },
+            { name: "Malta", code: "mt", bgColor: "bg-red-600" },
+            { name: "Maroko", code: "ma", bgColor: "bg-red-700" },
+            { name: "Mauritania", code: "mr", bgColor: "bg-green-700" },
+            { name: "Mauritius", code: "mu", bgColor: "bg-red-600" },
+            { name: "Meksiko", code: "mx", bgColor: "bg-green-700" },
+            { name: "Mesir", code: "eg", bgColor: "bg-black" },
+            { name: "Mikronesia", code: "fm", bgColor: "bg-blue-400" },
+            { name: "Moldova", code: "md", bgColor: "bg-blue-600" },
+            { name: "Monako", code: "mc", bgColor: "bg-red-600" },
+            { name: "Mongolia", code: "mn", bgColor: "bg-red-600" },
+            { name: "Montenegro", code: "me", bgColor: "bg-red-700" },
+            { name: "Mozambik", code: "mz", bgColor: "bg-green-800" },
+            { name: "Myanmar", code: "mm", bgColor: "bg-yellow-500" },
+            // N
+            { name: "Namibia", code: "na", bgColor: "bg-blue-800" },
+            { name: "Nauru", code: "nr", bgColor: "bg-blue-900" },
+            { name: "Nepal", code: "np", bgColor: "bg-red-600" },
+            { name: "Niger", code: "ne", bgColor: "bg-orange-500" },
+            { name: "Nigeria", code: "ng", bgColor: "bg-green-700" },
+            { name: "Nikaragua", code: "ni", bgColor: "bg-blue-500" },
+            { name: "Norwegia", code: "no", bgColor: "bg-red-700" },
+            // O
+            { name: "Oman", code: "om", bgColor: "bg-red-600" },
+            // P
+            { name: "Pakistan", code: "pk", bgColor: "bg-green-800" },
+            { name: "Palau", code: "pw", bgColor: "bg-blue-400" },
+            { name: "Palestina", code: "ps", bgColor: "bg-black" },
+            { name: "Panama", code: "pa", bgColor: "bg-blue-600" },
+            { name: "Pantai Gading", code: "ci", bgColor: "bg-orange-500" },
             { name: "Papua Nugini", code: "pg", bgColor: "bg-red-600" },
-            { name: "Fiji", code: "fj", bgColor: "bg-blue-400" }
+            { name: "Paraguay", code: "py", bgColor: "bg-red-600" },
+            { name: "Perancis", code: "fr", bgColor: "bg-blue-800" },
+            { name: "Peru", code: "pe", bgColor: "bg-red-600" },
+            { name: "Polandia", code: "pl", bgColor: "bg-red-600" },
+            { name: "Portugal", code: "pt", bgColor: "bg-green-700" },
+            // Q
+            { name: "Qatar", code: "qa", bgColor: "bg-red-900" },
+            // R
+            { name: "Republik Dominika", code: "do", bgColor: "bg-blue-700" },
+            { name: "Rumania", code: "ro", bgColor: "bg-blue-700" },
+            { name: "Rusia", code: "ru", bgColor: "bg-red-700" },
+            { name: "Rwanda", code: "rw", bgColor: "bg-blue-500" },
+            // S
+            { name: "Saint Kitts dan Nevis", code: "kn", bgColor: "bg-green-600" },
+            { name: "Saint Lucia", code: "lc", bgColor: "bg-blue-400" },
+            { name: "Saint Vincent", code: "vc", bgColor: "bg-green-600" },
+            { name: "Samoa", code: "ws", bgColor: "bg-red-600" },
+            { name: "San Marino", code: "sm", bgColor: "bg-blue-400" },
+            { name: "Sao Tome dan Principe", code: "st", bgColor: "bg-green-600" },
+            { name: "Selandia Baru", code: "nz", bgColor: "bg-blue-900" },
+            { name: "Senegal", code: "sn", bgColor: "bg-green-600" },
+            { name: "Serbia", code: "rs", bgColor: "bg-red-700" },
+            { name: "Seychelles", code: "sc", bgColor: "bg-blue-600" },
+            { name: "Sierra Leone", code: "sl", bgColor: "bg-green-600" },
+            { name: "Singapura", code: "sg", bgColor: "bg-red-600" },
+            { name: "Siprus", code: "cy", bgColor: "bg-white" },
+            { name: "Slovenia", code: "si", bgColor: "bg-blue-600" },
+            { name: "Slovakia", code: "sk", bgColor: "bg-blue-600" },
+            { name: "Solomon (Kepulauan)", code: "sb", bgColor: "bg-blue-600" },
+            { name: "Somalia", code: "so", bgColor: "bg-blue-500" },
+            { name: "Spanyol", code: "es", bgColor: "bg-red-600" },
+            { name: "Sri Lanka", code: "lk", bgColor: "bg-yellow-500" },
+            { name: "Sudan", code: "sd", bgColor: "bg-red-600" },
+            { name: "Sudan Selatan", code: "ss", bgColor: "bg-black" },
+            { name: "Suriah", code: "sy", bgColor: "bg-red-600" },
+            { name: "Suriname", code: "sr", bgColor: "bg-green-700" },
+            { name: "Swedia", code: "se", bgColor: "bg-blue-600" },
+            { name: "Swiss", code: "ch", bgColor: "bg-red-600" },
+            // T
+            { name: "Tajikistan", code: "tj", bgColor: "bg-red-600" },
+            { name: "Tanjung Verde", code: "cv", bgColor: "bg-blue-700" },
+            { name: "Tanzania", code: "tz", bgColor: "bg-green-600" },
+            { name: "Thailand", code: "th", bgColor: "bg-blue-800" },
+            { name: "Timor Leste", code: "tl", bgColor: "bg-red-700" },
+            { name: "Tiongkok (China)", code: "cn", bgColor: "bg-red-600" },
+            { name: "Togo", code: "tg", bgColor: "bg-green-600" },
+            { name: "Tonga", code: "to", bgColor: "bg-red-600" },
+            { name: "Trinidad dan Tobago", code: "tt", bgColor: "bg-red-600" },
+            { name: "Tunisia", code: "tn", bgColor: "bg-red-600" },
+            { name: "Turki", code: "tr", bgColor: "bg-red-600" },
+            { name: "Turkmenistan", code: "tm", bgColor: "bg-green-600" },
+            { name: "Tuvalu", code: "tv", bgColor: "bg-blue-400" },
+            // U
+            { name: "Uganda", code: "ug", bgColor: "bg-black" },
+            { name: "Ukraina", code: "ua", bgColor: "bg-blue-500" },
+            { name: "Uni Emirat Arab", code: "ae", bgColor: "bg-red-600" },
+            { name: "Uruguay", code: "uy", bgColor: "bg-blue-400" },
+            { name: "Uzbekistan", code: "uz", bgColor: "bg-blue-400" },
+            // V
+            { name: "Vanuatu", code: "vu", bgColor: "bg-green-600" },
+            { name: "Vatikan", code: "va", bgColor: "bg-yellow-200" },
+            { name: "Venezuela", code: "ve", bgColor: "bg-yellow-500" },
+            { name: "Vietnam", code: "vn", bgColor: "bg-red-600" },
+            // Y
+            { name: "Yaman", code: "ye", bgColor: "bg-red-600" },
+            { name: "Yordania", code: "jo", bgColor: "bg-black" },
+            { name: "Yunani", code: "gr", bgColor: "bg-blue-500" },
+            // Z
+            { name: "Zambia", code: "zm", bgColor: "bg-green-700" },
+            { name: "Zimbabwe", code: "zw", bgColor: "bg-green-800" }
         ];
         
         // Gandakan agar permainan lebih panjang
-        const quizData = [...rawQuizData, ...rawQuizData];
+        const quizData = [...rawQuizData];
 
         // --- STATE VARIABLES ---
         let currentLevel = 0;
@@ -237,11 +374,9 @@
             timerContainer.classList.remove('hidden');
             
             // 2. Set Colors & Flag Image
-            // Reset background classes
             appContainer.className = `relative w-full max-w-4xl aspect-video rounded-xl shadow-2xl overflow-hidden border-4 border-white/50 transition-colors duration-1000 flex flex-col items-center justify-center ${data.bgColor}`;
 
             // Set Flag Image (menggunakan flagcdn)
-            // Menggunakan w640 untuk resolusi tinggi
             quizFlag.src = `https://flagcdn.com/w640/${data.code}.png`;
 
             // 3. Reset Timer Bar
